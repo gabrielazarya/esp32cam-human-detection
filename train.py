@@ -6,7 +6,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 import pickle
 
-# === SETUP ===
 dataset_dir = "dataset"
 classes = ["manusia", "bukan_manusia"]
 data = []
@@ -15,7 +14,6 @@ label_map = {0: "manusia", 1: "bukan_manusia"}
 
 print("[INFO] Memuat dataset...")
 
-# === LOAD DATA ===
 for label, folder in enumerate(classes):
     folder_path = os.path.join(dataset_dir, folder)
     if not os.path.isdir(folder_path):
@@ -39,15 +37,12 @@ y = np.array(labels)
 
 print(f"[INFO] Data siap. Total sample: {len(X)}")
 
-# === SPLIT DATA ===
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-# === TRAIN MODEL ===
 print("[INFO] Melatih model Random Forest...")
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-# === EVALUASI ===
 acc = model.score(X_test, y_test)
 y_pred = model.predict(X_test)
 
@@ -57,7 +52,6 @@ print(classification_report(y_test, y_pred, target_names=classes))
 print("Confusion Matrix:")
 print(confusion_matrix(y_test, y_pred))
 
-# === SAVE MODEL ===
 with open("model.pkl", "wb") as f:
     pickle.dump(model, f)
 
