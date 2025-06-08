@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>Deteksi Manusia</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1rem;
+      margin: 0;
+      background: #f9f9f9;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 1rem;
+    }
+    video, canvas {
+      width: 100%;
+      max-width: 480px;
+      border-radius: 12px;
+      border: 2px solid #444;
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 1rem 2rem;
+      margin: 1rem;
+      width: 80%;
+      max-width: 300px;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h2>Deteksi Manusia</h2>
+  <video id="video" autoplay playsinline></video><br>
+  <button onclick="capture()">Ambil Foto</button><br>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <button id="uploadBtn" style="display:none;" onclick="upload()">Upload & Deteksi</button>
+
+  <script>
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const uploadBtn = document.getElementById("uploadBtn");
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }, audio: false
+        });
+        video.srcObject = stream;
+      } catch (err) {
+        alert("Gagal mengakses kamera: " + err.message);
+      }
+    }
+
+    function capture() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      uploadBtn.style.display = 'inline-block';
+    }
+
+    async function upload() {
+      const dataURL = canvas.toDataURL('image/jpeg');
+      try {
+        const res = await fetch('api.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageData: dataURL })
+        });
+        const result = await res.text();
+        alert(result || 'Server tidak memberikan response');
+      } catch (e) {
+        alert('Upload gagal: ' + e.message);
+      }
+    }
+
+    // Mulai kamera saat halaman dimuat
+    window.addEventListener('load', startCamera);
+  </script>
+</body>
+</html>
